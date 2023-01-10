@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
-
+import datetime
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -37,16 +37,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # Internal Apps
     'api',
     'products',
+    'search',
+    'articles',
+    
+    # 3rd party apps
     'rest_framework',
     'rest_framework.authtoken',
-    'search',
+    'rest_framework_simplejwt',
+    "corsheaders",
+    
+    # 3rd party api
+    'algoliasearch_django',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -127,15 +138,34 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CORS_URLS_REGEX = r"^/api/.*"
+CORS_ALLOWED_ORIGINS = ['http://localhost:8111', 
+                        'http://localhost:8000']
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         "rest_framework.authentication.SessionAuthentication",
         "api.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+
     ],
     'DEFAULT_PERMISSION_CLASSES ': [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 3,
+}
+
+
+ALGOLIA = {
+    'APPLICATION_ID': '36KMQFBGAP',
+    'API_KEY': 'cf0d6dc352e104866e1f9b76dccc5421',
+    "INDEX_PREFIX": "cfe"
+}
+
+
+SIMPLE_JWT={
+    "AUTH_HEADER_TYPES":["Bearer"],
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(seconds=30),
+    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(minutes=1)
 }

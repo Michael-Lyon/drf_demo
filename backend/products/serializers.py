@@ -5,52 +5,56 @@ from api.serializers import UserPublicSerializer
 from products.models import Product
 
 
+# class ProductsInlineSerializer(serializers.Serializer):
+#     detail_url = serializers.HyperlinkedIdentityField(
+    #     view_name = "products:product-detail",
+    #     lookup_field = 'pk'
+    # )
+
+#     title = serializers.CharField(read_only=True)
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    my_discount = serializers.SerializerMethodField(read_only=True)
-    # url = serializers.SerializerMethodField(read_only=True)
     edit_url = serializers.SerializerMethodField(read_only=True)
-    detail_url = serializers.HyperlinkedIdentityField(
-        view_name="product_detail",
-        lookup_field='pk'
-    )
-    owner = UserPublicSerializer(source='user',read_only=True)
+    body = serializers.CharField(source='content')
+    owner = UserPublicSerializer(source='user', read_only=True)
+    
     class Meta:
         model = Product
         fields = [
             "owner",
             # "url",
-            "detail_url",
             "edit_url",
             "pk",
             'title',
-            'content',
+            'body',
             'price',
-            'sale_price',
-            'my_discount',
+            'public',
+            'path',
+            'endpoint',
         ]
-    
-    
+
     # CUSTOM VALIDATIONS
+
     def validate_title(self, value):
         qs = Product.objects.filter(title__iexact=value)
         if qs.exists():
             raise serializers.ValidationError("This content already exists.")
         return value
-    
-    def get_url(self, obj):
-        request = self.context.get("request")
-        if request is None:
-            return None
-        return reverse("product_detail", kwargs={'pk':obj.pk}, request=request, )
-    
+
+    # def get_detail_url(self, obj):
+    #     request = self.context.get("request")
+    #     if request is None:
+    #         return None
+    #     return reverse("product-detail", kwargs={'pk':obj.pk}, request=request, )
+
     def get_edit_url(self, obj):
         request = self.context.get("request")
         if request is None:
             return None
-        return reverse("product_update", kwargs={'pk':obj.pk}, request=request, )
+        return reverse("products:product-update", kwargs={'pk': obj.pk}, request=request, )
 
+    
     def get_my_discount(self, obj):
         if not hasattr(obj, 'id'):
             return None

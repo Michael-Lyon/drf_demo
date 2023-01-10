@@ -2,16 +2,6 @@ from rest_framework import serializers
 
 
 
-class UserProductsInlineSerializer(serializers.Serializer):
-    detail_url = serializers.HyperlinkedIdentityField(
-        view_name="product_detail",
-        lookup_field='pk'
-    )
-    
-    title = serializers.CharField(read_only=True)
-    
-
-
 
 class UserPublicSerializer(serializers.Serializer):
     username = serializers.CharField(read_only=True)
